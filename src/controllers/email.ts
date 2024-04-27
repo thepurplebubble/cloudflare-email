@@ -2,6 +2,8 @@ import { IContact, IEmail } from '../schema/email';
 
 type IMCPersonalization = {
 	to: IMCContact[];
+	cc?: IMCContact[];
+	bcc?: IMCContact[];
 	dkim_domain?: string;
 	dkim_private_key?: string;
 	dkim_selector?: string;
@@ -13,8 +15,6 @@ interface IMCEmail {
 	personalizations: IMCPersonalization[];
 	from: IMCContact;
 	reply_to: IMCContact | undefined;
-	cc: IMCContact[] | undefined;
-	bcc: IMCContact[] | undefined;
 	subject: string;
 	content: IMCContent[];
 }
@@ -33,6 +33,8 @@ class Email {
 			mcEmail.personalizations[0].dkim_private_key = env.DKIM_PRIVATE_KEY;
 			mcEmail.personalizations[0].dkim_selector = env.DKIM_SELECTOR
 		}
+
+		console.log('Email.send: Sending email:', mcEmail);
 
 		// send email through MailChannels
 		const resp = await fetch(
@@ -76,11 +78,13 @@ class Email {
 		// Convert 'cc' field
 		if (email.cc) {
 			ccContacts = Email.convertContacts(email.cc);
+			personalizations[0].cc = ccContacts;
 		}
 
 		// Convert 'bcc' field
 		if (email.bcc) {
 			bccContacts = Email.convertContacts(email.bcc);
+			personalizations[0].bcc = bccContacts;
 		}
 
 		const from: IMCContact = Email.convertContact(email.from);
@@ -105,8 +109,6 @@ class Email {
 		return {
 			personalizations,
 			from,
-			cc: ccContacts,
-			bcc: bccContacts,
 			reply_to: replyTo,
 			subject,
 			content,
