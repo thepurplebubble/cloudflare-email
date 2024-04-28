@@ -1,3 +1,5 @@
+import { marked } from 'marked';
+import sanitize from 'sanitize-html';
 import { IContact, IEmail } from '../schema/email';
 
 type IMCPersonalization = {
@@ -26,7 +28,7 @@ class Email {
 	 */
 	static async send(email: IEmail, env: Env) {
 		// convert email to IMCEmail (MailChannels Email)
-		const mcEmail: IMCEmail = Email.convertEmail(email);
+		const mcEmail: IMCEmail = await Email.convertEmail(email);
 
 		if (env.DKIM_PRIVATE_KEY && env.DKIM_DOMAIN && env.DKIM_SELECTOR) {
 			mcEmail.personalizations[0].dkim_domain = env.DKIM_DOMAIN;
@@ -58,7 +60,7 @@ class Email {
 	 * @param email
 	 * @protected
 	 */
-	protected static convertEmail(email: IEmail): IMCEmail {
+	protected static async convertEmail(email: IEmail): Promise<IMCEmail> {
 		const personalizations: IMCPersonalization[] = [];
 
 		// Convert 'to' field
@@ -96,6 +98,14 @@ class Email {
 		const textContent: IMCContent[] = [];
 		if (email.text) {
 			textContent.push({ type: 'text/plain', value: email.text });
+		}
+
+		// Convert 'markdown' field
+		if (email.markdown) {
+			const html = await marked.parse(email.markdown);
+			const sanitizedHtml = sanitize(html);
+
+			textContent.push({ type: 'text/html', value: sanitizedHtml });
 		}
 
 		// Convert 'html' field
