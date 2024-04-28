@@ -14,7 +14,6 @@ const EmailSchemaMiddleware = async (request: EmailRequest) => {
 	const email = iEmailSchema.safeParse(content);
 	if (email.success) {
 		request.email = email.data;
-		console.log('EmailSchemaMiddleware: Email data:', email.data);
 		return;
 	}
 

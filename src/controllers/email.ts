@@ -36,7 +36,7 @@ class Email {
 			mcEmail.personalizations[0].dkim_selector = env.DKIM_SELECTOR
 		}
 
-		console.log('Email.send: Sending email:', mcEmail);
+		console.log('Sending email:', mcEmail);
 
 		// send email through MailChannels
 		const resp = await fetch(
