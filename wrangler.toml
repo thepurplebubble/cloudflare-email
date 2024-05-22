@@ -1,9 +1,9 @@
-name = "worker-email"
+name = "worker-email-pb"
 main = "src/main.ts"
 compatibility_date = "2023-05-18"
 
 [env.production.vars]
-DKIM_DOMAIN = "<Your-Domain-Here>"
+DKIM_DOMAIN = "purplebubble.org"
 DKIM_SELECTOR = "mailchannels"
 
 [placement]
